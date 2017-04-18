@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+ fref="bin/bbtools/resources/phix174_ill.ref.fa.gz,"
+fref+="bin/bbtools/resources/sequencing_artifacts.fa.gz,"
+fref+="bin/bbtools/resources/adapters_no_transposase.fa.gz"
+
+bin/bbtools/bbduk2.sh t=8 -Xmx55g \
+    in=data/1702KHP-0084/ASW_1.fastq.gz \
+    in2=data/1702KHP-0084/ASW_2.fastq.gz \
+    out=output/bbduk/ASW_filtered_trimmed.fastq.gz \
+    ziplevel=9 \
+    fref="${fref}" \
+    rref=bin/bbtools/resources/adapters.fa \
+    ktrim=r k=23 mink=11 hdist=1 \
+    stats=output/bbduk/stats.txt \
+    bhist=output/bbduk/bhist.txt \
+    qhist=output/bbduk/qhist.txt \
+    qchist=output/bbduk/qchist.txt \
+    aqhist=output/bbduk/aqhist.txt \
+    bqhist=output/bbduk/bqhist.txt \
+    lhist=output/bbduk/lhist.txt \
+    gchist=output/bbduk/gchist.txt \
+
+exit 0
