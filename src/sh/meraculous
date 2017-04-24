@@ -13,38 +13,47 @@ meraculous="bin/meraculous/run_meraculous.sh"
 
 # make outdir
 outdir="$(dirname "${output_fq}")"
-meraculous_config_file="${outdir}/meraculous.conf"
 if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
 
-# configure meraculous
-cat <<- _EOF_ > "${meraculous_config_file}"
-lib_seq             ${input_fq} NOPCR 470 47 100 0 0 1 0 0 0 0 
-genome_size         600
-mer_size            41
-diploid_mode        1
-num_prefix_blocks   1
-min_depth_cutoff    8
-local_num_procs     50
-local_max_memory    10
-use_cluster         0
+for meraculous_kmer_length in 21 31 71; do
+    meraculous_outdir="${outdir}/run_${meraculous_kmer_length}mer"
+    meraculous_conf="${outdir}/meraculous_${meraculous_kmer_length}.conf"
+
+    # configure meraculous
+    cat <<- _EOF_ > "${meraculous_conf}"
+    lib_seq             ${input_fq} NOPCR 470 47 100 0 0 1 1 1 0 0 
+    genome_size         0.66
+    mer_size            ${meraculous_kmer_length}
+    diploid_mode        1
+    num_prefix_blocks   1
+    min_depth_cutoff    0
+    local_num_procs     40
+    local_max_memory    7
+    use_cluster         0
+    no_read_validation  1
 _EOF_
 
-# build command
-cmd=( "${meraculous}" -c "${meraculous_config_file}" )
-shopt -s extglob
-printf "Final command line: "
-printf "%s " "${cmd[@]//+([[:blank:]])/ }"
-printf "\n"
-shopt -u extglob
+    # build command
+    cmd=( "${meraculous}" -c "${meraculous_conf}"
+              -stop meraculous_bubble
+              -cleanup_level 2
+              -dir "${meraculous_outdir}" )
+    shopt -s extglob
+    printf "Final command line: "
+    printf "%s " "${cmd[@]//+([[:blank:]])/ }"
+    printf "\n"
+    shopt -u extglob
 
-# run meraculous
-log_file="${outdir}/meraculous.log"
-err_file="${outdir}/meraculous.err"
+    # run meraculous
+    log_file="${outdir}/meraculous_${meraculous_kmer_length}.log"
+    err_file="${outdir}/meraculous_${meraculous_kmer_length}.err"
 
-"${cmd[@]}" > "${log_file}" 2> "${err_file}" &
-printf "[ %s: Waiting for meraculous to finish ]\n" "$(date)"
+    "${cmd[@]}" > "${log_file}" 2> "${err_file}" &
+done
+
+printf "[ %s: Waiting for meraculous jobs to finish ]\n" "$(date)"
 FAIL=0
 fail_wait
 
