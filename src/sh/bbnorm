@@ -22,9 +22,9 @@ cmd=( bin/bbtools/bbnorm.sh threads="${max_cpus}" "-Xmx${java_ram}"
         "out=${output_fq}"
         ziplevel=9
         target=60 min=8 prefilter ecc
-        khist=output/bbnorm/hist_before.txt
-        khistout=output/bbnorm/hist_after.txt
-        peaks=output/bbnorm/peaks.txt )
+        "khist=${outdir}/hist_before.txt"
+        "khistout=${outdir}/hist_after.txt"
+        "peaks=${outdir}/peaks.txt" )
 
 shopt -s extglob
 printf "Final command line: "

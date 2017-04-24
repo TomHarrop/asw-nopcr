@@ -37,19 +37,19 @@ java_ram=$((ram_limit/1000000000))"g"
 cmd=( bin/bbtools/bbduk2.sh threads="${max_cpus}" "-Xmx${java_ram}"
         "in=${fq_r1}"
         "in2=${fq_r2}"
-        out=output/bbduk/ASW_filtered_trimmed.fastq.gz
+        "out=${output_fq}"
         ziplevel=9
         "fref=${fref}"
         "rref=${rref}"
         k=23 mink=11 hdist=1
-        stats=output/bbduk/stats.txt
-        bhist=output/bbduk/bhist.txt
-        qhist=output/bbduk/qhist.txt
-        qchist=output/bbduk/qchist.txt
-        aqhist=output/bbduk/aqhist.txt
-        bqhist=output/bbduk/bqhist.txt 
-        lhist=output/bbduk/lhist.txt 
-        gchist=output/bbduk/gchist.txt )
+        "stats=${outdir}/stats.txt"
+        "bhist=${outdir}/bhist.txt"
+        "qhist=${outdir}/qhist.txt"
+        "qchist=${outdir}/qchist.txt"
+        "aqhist=${outdir}/aqhist.txt"
+        "bqhist=${outdir}/bqhist.txt" 
+        "lhist=${outdir}/lhist.txt" 
+        "gchist=${outdir}/gchist.txt" )
 
 shopt -s extglob
 printf "Final command line: "
