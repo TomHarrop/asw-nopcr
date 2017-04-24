@@ -23,11 +23,11 @@ cat <<- _EOF_ > "${meraculous_config_file}"
 lib_seq             ${input_fq} nopcr 470 47 100 0 0 1 0 0 0 0 
 genome_size         600
 mer_size            0
-is_diploid          1
+diploid_mode        1
 num_prefix_blocks   1
 min_depth_cutoff    8
 local_num_procs     50
-local_max_memory    500
+local_max_memory    10
 use_cluster         0
 _EOF_
 
