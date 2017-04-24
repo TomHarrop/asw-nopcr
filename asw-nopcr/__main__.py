@@ -56,7 +56,19 @@ def main():
         input=raw_fq_files,
         output='output/bbduk/ASW_filtered_trimmed.fastq.gz')
 
-    # normalise
+    # kmer analysis
+    main_pipeline.transform(
+        name='kmergenie',
+        task_func=tompltools.generate_job_function(
+            job_script='src/sh/kmergenie',
+            job_name='kmergenie',
+            ntasks=1,
+            cpus_per_task=8),
+        input=trimmed_reads,
+        filter=ruffus.formatter(),
+        output='output/kmergenie/histogram_report.html')
+
+    # normalise for histogram plots
     normalised_reads = main_pipeline.transform(
         name='bbnorm',
         task_func=tompltools.generate_job_function(
