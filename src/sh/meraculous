@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+printf "[ %s: Run assembly with meraculous ]\n" \
+    "$(date)"
+
+# shellcheck disable=SC1091
+source "src/sh/bash_header"
+# shellcheck disable=SC1091
+source "src/sh/io_parser"
+
+# meraculous script
+meraculous="bin/meraculous/run_meraculous.sh"
+
+# make outdir
+outdir="$(dirname "${output_fq}")"
+meraculous_config_file="${outdir}/meraculous.conf"
+if [[ ! -d "${outdir}" ]]; then
+    mkdir -p "${outdir}"
+fi
+
+# configure meraculous
+cat <<- _EOF_ > "${meraculous_config_file}"
+lib_seq             ${input_fq} nopcr 470 47 100 0 0 1 0 0 0 0 
+genome_size         600
+mer_size            0
+is_diploid          1
+num_prefix_blocks   1
+min_depth_cutoff    8
+local_num_procs     50
+local_max_memory    500
+use_cluster         0
+_EOF_
+
+# build command
+cmd=( "${meraculous}" -c "${meraculous_config_file}" )
+shopt -s extglob
+printf "Final command line: "
+printf "%s " "${cmd[@]//+([[:blank:]])/ }"
+printf "\n"
+shopt -u extglob
+
+# run meraculous
+log_file="${outdir}/meraculous.log"
+err_file="${outdir}/meraculous.err"
+
+"${cmd[@]}" > "${log_file}" 2> "${err_file}" &
+printf "[ %s: Waiting for meraculous to finish ]\n" "$(date)"
+FAIL=0
+fail_wait
+
+# log metadata
+metadata_file="${outdir}/METADATA.csv"
+
+printf "[ %s: Logging metadata ]\n" "$(date)"
+printf "metadata_file: %s\n" "${metadata_file}"
+cat <<- _EOF_ > "${metadata_file}"
+    Script,${0}
+    branch,$(git rev-parse --abbrev-ref HEAD)
+    hash,$(git rev-parse HEAD)
+    date,$(date +%F)
+    meraculous,$("${meraculous}" -v 2>&1 | sed '2q;d')
+_EOF_
+
+printf "[ %s: Done ]\n" "$(date)"
+
+exit 0
+

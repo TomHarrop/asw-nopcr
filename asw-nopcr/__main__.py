@@ -79,6 +79,9 @@ def main():
         filter=ruffus.formatter(),
         output='output/bbnorm/kmer_distribution_plot.pdf')
 
+    # meraculous assembly
+    
+
     ###################
     # RUFFUS COMMANDS #
     ###################
