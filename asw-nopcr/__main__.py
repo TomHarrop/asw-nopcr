@@ -36,7 +36,7 @@ def main():
     main_pipeline = ruffus.Pipeline.pipelines['main']
 
     # find no-pcr reads
-    pcrfree_read_files = tompytools.find_all(["fastq.gz"], "data/1702KHP-0084")
+    pcrfree_read_files = tompytools.find_all(['fastq.gz'], 'data/1702KHP-0084')
 
     # load files into ruffus 
     raw_fq_files = main_pipeline.originate(
@@ -48,8 +48,8 @@ def main():
     trimmed_reads = main_pipeline.merge(
         name='bbduk',
         task_func=tompltools.generate_job_function(
-            job_script="src/sh/bbduk",
-            job_name="bbduk",
+            job_script='src/sh/bbduk',
+            job_name='bbduk',
             ntasks=1,
             cpus_per_task=8,
             mem_per_cpu=6800),
@@ -57,11 +57,11 @@ def main():
         output='output/bbduk/ASW_filtered_trimmed.fastq.gz')
 
     # normalise
-    main_pipeline.transform(
+    normalised_reads = main_pipeline.transform(
         name='bbnorm',
         task_func=tompltools.generate_job_function(
-            job_script="src/sh/bbnorm",
-            job_name="bbnorm",
+            job_script='src/sh/bbnorm',
+            job_name='bbnorm',
             ntasks=1,
             cpus_per_task=8,
             mem_per_cpu=6800),
@@ -69,14 +69,24 @@ def main():
         filter=ruffus.formatter(),
         output='output/bbnorm/ASW_normalised.fastq.gz')
 
+    # kmer plots
+    main_pipeline.transform(
+        name='plot_kmer_distribution',
+        task_func=tompltools.generate_job_function(
+            job_script='src/r/plot_kmer_distribution.R',
+            job_name='plot_kmer_distribution'),
+        input=normalised_reads,
+        filter=ruffus.formatter(),
+        output='output/bbnorm/kmer_distribution_plot.pdf')
+
     ###################
     # RUFFUS COMMANDS #
     ###################
 
     # print the flowchart
     ruffus.pipeline_printout_graph(
-        "ruffus/flowchart.pdf", "pdf",
-        pipeline_name="ASW PCR-free assembly pipeline")
+        'ruffus/flowchart.pdf', 'pdf',
+        pipeline_name='ASW PCR-free assembly pipeline')
 
     # run the pipeline
     ruffus.cmdline.run(options, multithread=32)
