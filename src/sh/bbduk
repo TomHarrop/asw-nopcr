@@ -57,8 +57,6 @@ printf "%s " "${cmd[@]//+([[:blank:]])/ }"
 printf "\n"
 shopt -u extglob
 
-exit 1
-
 # run bbduk2
 log_file="${outdir}/bbduk.log"
 srun --ntasks=1 --cpus-per-task="${max_cpus}" --exclusive \
