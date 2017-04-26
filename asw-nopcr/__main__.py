@@ -69,7 +69,7 @@ def main():
         output='output/kmergenie/histogram_report.html')
 
     # uniqueness histogram
-    main_pipeline.transform(
+    bbcountunique = main_pipeline.transform(
         name='bbcountunique',
         task_func=tompltools.generate_job_function(
             job_script='src/sh/bbcountunique',
@@ -80,6 +80,15 @@ def main():
         input=trimmed_reads,
         filter=ruffus.formatter(),
         output='output/bbduk/uniqueness_histogram.txt')
+
+    main_pipeline.transform(
+        name='plot_uniqueness_histogram',
+        task_func=tompltools.generate_job_function(
+            job_script='src/r/plot_uniqueness_histogram.R',
+            job_name='plot_uniqueness_histogram'),
+        input=bbcountunique,
+        filter=ruffus.formatter(),
+        output='output/bbduk/uniqueness_histogram.pdf')
 
     # normalise for histogram plots
     normalised_reads = main_pipeline.transform(

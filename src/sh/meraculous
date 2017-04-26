@@ -17,7 +17,7 @@ if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
 
-for meraculous_kmer_length in 21 31 71; do
+for meraculous_kmer_length in 21 31 67; do
     meraculous_outdir="${outdir}/run_${meraculous_kmer_length}mer"
     meraculous_conf="${outdir}/meraculous_${meraculous_kmer_length}.conf"
 
@@ -37,7 +37,6 @@ _EOF_
 
     # build command
     cmd=( "${meraculous}" -c "${meraculous_conf}"
-              -stop meraculous_bubble
               -cleanup_level 2
               -dir "${meraculous_outdir}" )
     shopt -s extglob
