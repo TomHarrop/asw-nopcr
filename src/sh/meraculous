@@ -17,7 +17,7 @@ if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
 
-for meraculous_kmer_length in 21 31; do
+for meraculous_kmer_length in 67; do
     meraculous_outdir="${outdir}/run_${meraculous_kmer_length}mer"
     meraculous_conf="${outdir}/meraculous_${meraculous_kmer_length}.conf"
 
@@ -29,7 +29,7 @@ for meraculous_kmer_length in 21 31; do
     diploid_mode        1
     num_prefix_blocks   1
     min_depth_cutoff    0
-    local_num_procs     40
+    local_num_procs     10
     local_max_memory    10
     use_cluster         0
     no_read_validation  1
@@ -37,8 +37,7 @@ _EOF_
 
     # build command
     cmd=( "${meraculous}" -c "${meraculous_conf}"
-              -dir "${meraculous_outdir}"
-              -restart -start meraculous_merblast )
+              -dir "${meraculous_outdir}" )
     shopt -s extglob
     printf "Final command line: "
     printf "%s " "${cmd[@]//+([[:blank:]])/ }"
