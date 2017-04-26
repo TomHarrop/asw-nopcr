@@ -37,6 +37,7 @@ _EOF_
 
     # build command
     cmd=( "${meraculous}" -c "${meraculous_conf}"
+              -restart
               -cleanup_level 2
               -dir "${meraculous_outdir}" )
     shopt -s extglob
