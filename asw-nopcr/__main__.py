@@ -90,7 +90,17 @@ def main():
         filter=ruffus.formatter(),
         output='output/bbduk/uniqueness_histogram.pdf')
 
-    # normalise for histogram plots
+    # read quality plot
+    main_pipeline.transform(
+        name='plot_quality_histogram',
+        task_func=tompltools.generate_job_function(
+            job_script='src/r/plot_quality_histogram.R',
+            job_name='plot_quality_histogram'),
+        input=trimmed_reads,
+        filter=ruffus.formatter(),
+        output='output/bbduk/quality_histogram_plot.pdf')
+
+    # normalise for kmer plots
     normalised_reads = main_pipeline.transform(
         name='bbnorm',
         task_func=tompltools.generate_job_function(
