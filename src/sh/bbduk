@@ -42,6 +42,8 @@ cmd=( bin/bbtools/bbduk2.sh threads="${max_cpus}" "-Xmx${java_ram}"
         "fref=${fref}"
         "rref=${rref}"
         k=23 hdist=2 mink=10 hdist2=1
+        trimpairsevenly=t
+        trimbyoverlap=t
         forcetrimmod=5
         "stats=${outdir}/stats.txt"
         "bhist=${outdir}/bhist.txt"

@@ -38,13 +38,21 @@ def main():
     # find no-pcr reads
     pcrfree_read_files = tompytools.find_all(['fastq.gz'], 'data/1702KHP-0084')
 
+    # find nextera libs
+    nextera_files = tompytools.find_all(['fastq.gz'], 'data/NZGL02125')
+
     # load files into ruffus 
     raw_fq_files = main_pipeline.originate(
         name='raw_fq_files',
         task_func=os.path.isfile,
         output=pcrfree_read_files)
 
-    # trim and decontaminate
+    nextera_libraries = main_pipeline.originate(
+        name='nextera_libraries',
+        task_func=os.path.isfile,
+        output=nextera_files)
+
+    # trim and decontaminate PE file
     trimmed_reads = main_pipeline.merge(
         name='bbduk',
         task_func=tompltools.generate_job_function(
@@ -55,6 +63,18 @@ def main():
             mem_per_cpu=6800),
         input=raw_fq_files,
         output='output/bbduk/ASW_filtered_trimmed.fastq.gz')
+
+    # trim and split nextera file
+    long_mate_pairs = main_pipeline.merge(
+        name='long_mate_pairs',
+        task_func=tompltools.generate_job_function(
+            job_script='src/sh/long_mate_pairs',
+            job_name='long_mate_pairs',
+            ntasks=1,
+            cpus_per_task=8,
+            mem_per_cpu=6800),
+        input=nextera_libraries,
+        output='output/long_mate_pairs/lmp.fastq.gz')
 
     # kmer analysis
     main_pipeline.transform(

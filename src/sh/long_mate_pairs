@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+printf "[ %s: Trim and demux LMP reads with bbtools ]\n" \
+    "$(date)"
+
+# shellcheck disable=SC1091
+source "src/sh/bash_header"
+# shellcheck disable=SC1091
+source "src/sh/io_parser"
+
+# make outdir
+outdir="$(dirname "${output_fq}")"
+if [[ ! -d "${outdir}" ]]; then
+    mkdir -p "${outdir}"
+fi
+
+# pair the files
+for fq_file in "${input_fq[@]}"; do
+    bn="$(basename "${fq_file}" .fastq.gz)"
+    if grep -q "L002_R1" <<< "${bn}"; then
+        fq_l2r1="${fq_file}"
+    elif grep -q "L003_R1" <<< "${bn}"; then
+        fq_l3r1="${fq_file}"
+    elif grep -q "L002_R2" <<< "${bn}"; then
+        fq_l2r2="${fq_file}"
+    elif grep -q "L003_R2" <<< "${bn}"; then
+        fq_l3r2="${fq_file}"
+    fi
+done
+printf "\tfq_l2r1: %s\n\tfq_l3r1: %s\n\tfq_l2r2: %s\n\tfq_l3r2: %s\n" \
+    "${fq_l2r1}" "${fq_l3r1}" "${fq_l2r2}" "${fq_l3r2}"
+
+# concatenate the pairs to temporary files
+script_name="$(basename "${0}")"
+tmp_outdir="$(mktemp --tmpdir -d "${script_name}_tmp.XXXXXXXX")"
+fq_r1="${tmp_outdir}/r1.fastq.gz"
+fq_r2="${tmp_outdir}/r2.fastq.gz"
+
+# zcat "${fq_l2r1}" | head -n 10000 | gzip > "${fq_r1}" &
+# zcat "${fq_l2r2}" | head -n 10000 | gzip > "${fq_r2}" &
+
+cat "${fq_l2r1}" "${fq_l3r1}" > "${fq_r1}" &
+cat "${fq_l2r2}" "${fq_l3r2}" > "${fq_r2}" &
+
+printf "[ %s: Copying reads to %s ]\n" "$(date)" "${tmp_outdir}"
+FAIL=0
+fail_wait
+
+# prepare bbduk command
+java_ram=$((ram_limit/2000000000))"g" # half ram
+shared_cpus=$(( max_cpus / 2 ))
+ref="bin/bbtools/resources/adapters_no_transposase.fa.gz"
+cmd1=( bin/bbtools/bbduk.sh threads="${shared_cpus}" "-Xmx${java_ram}"
+        "in=${fq_r1}"
+        "in2=${fq_r2}"
+        "out=stdout.fq"
+        "ref=${ref}"
+        ktrim=r k=23 hdist=2 mink=10 hdist2=1
+        trimpairsevenly=t
+        trimbyoverlap=t
+        forcetrimmod=5
+        "stats=${outdir}/stats.txt"
+        "bhist=${outdir}/bhist.txt"
+        "qhist=${outdir}/qhist.txt"
+        "qchist=${outdir}/qchist.txt"
+        "aqhist=${outdir}/aqhist.txt"
+        "bqhist=${outdir}/bqhist.txt" 
+        "lhist=${outdir}/lhist.txt" 
+        "gchist=${outdir}/gchist.txt" )
+
+cmd2=( bin/bbtools/splitnextera.sh threads="${shared_cpus}"
+           "-Xmx${java_ram}" 
+           "in=stdin.fq"
+           "out=${output_fq}"
+            ziplevel=9 )
+
+shopt -s extglob
+printf "bbduk command line: "
+printf "%s " "${cmd1[@]//+([[:blank:]])/ }"
+printf "\n"
+printf "splitnextera command line: "
+printf "%s " "${cmd2[@]//+([[:blank:]])/ }"
+printf "\n"
+shopt -u extglob
+
+# run command
+bbduk_err="${outdir}/bbduk.err"
+splitnextera_err="${outdir}/splitnextera.err"
+
+printf "[ %s: Running bbduk and splitnextera ]\n" "$(date)"
+"${cmd1[@]}" 2> "${bbduk_err}" | "${cmd2[@]}" 2> "${splitnextera_err}"
+
+# log metadata
+metadata_file="${outdir}/METADATA.csv"
+printf "[ %s: Logging metadata ]\n" "$(date)"
+printf "metadata_file: %s\n" "${metadata_file}"
+cat <<- _EOF_ > "${metadata_file}"
+    Script,${0}
+    branch,$(git rev-parse --abbrev-ref HEAD)
+    hash,$(git rev-parse HEAD)
+    date,$(date +%F)
+    bbduk revision,$(bin/bbtools/bbduk.sh 2>&1 | sed '3q;d')
+    splitnextera revision,$(bin/bbtools/splitnextera.sh 2>&1 | sed '3q;d')
+_EOF_
+
+printf "[ %s: Done ]\n" "$(date)"
+
+exit 0
