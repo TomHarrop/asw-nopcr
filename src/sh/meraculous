@@ -35,7 +35,7 @@ for meraculous_kmer_length in 31 41 51; do
     # configure meraculous
     cat <<- _EOF_ > "${meraculous_conf}"
     lib_seq             $(readlink -f "${fq_pe}") PE 470 47 100 0 0 1 1 1 0 0 
-    lib_seq             $(readlink -f "${fq_mp}") PE 5500 500 100 0 1 0 1 0 0 0 
+    lib_seq             $(readlink -f "${fq_mp}") PE 5500 500 48 0 1 0 1 0 0 0 
     genome_size         0.66
     mer_size            ${meraculous_kmer_length}
     diploid_mode        1
@@ -61,7 +61,7 @@ _EOF_
     log_file="${outdir}/meraculous_${meraculous_kmer_length}.log"
     err_file="${outdir}/meraculous_${meraculous_kmer_length}.err"
 
-    "${cmd[@]}" > "${log_file}" 2> "${err_file}" &
+    #"${cmd[@]}" > "${log_file}" 2> "${err_file}" &
 done
 
 printf "[ %s: Waiting for meraculous jobs to finish ]\n" "$(date)"
