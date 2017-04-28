@@ -61,7 +61,7 @@ _EOF_
     log_file="${outdir}/meraculous_${meraculous_kmer_length}.log"
     err_file="${outdir}/meraculous_${meraculous_kmer_length}.err"
 
-    #"${cmd[@]}" > "${log_file}" 2> "${err_file}" &
+    "${cmd[@]}" > "${log_file}" 2> "${err_file}" &
 done
 
 printf "[ %s: Waiting for meraculous jobs to finish ]\n" "$(date)"
