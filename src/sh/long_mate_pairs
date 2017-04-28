@@ -103,6 +103,10 @@ cat <<- _EOF_ > "${metadata_file}"
     splitnextera revision,$(bin/bbtools/splitnextera.sh 2>&1 | sed '3q;d')
 _EOF_
 
+printf "[ %s: Removing temporary files ]\n" "$(date)"
+
+rm -r "${tmp_outdir}"
+
 printf "[ %s: Done ]\n" "$(date)"
 
 exit 0
