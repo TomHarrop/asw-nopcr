@@ -71,6 +71,7 @@ cmd1=( bin/bbtools/bbduk.sh threads="${shared_cpus}" "-Xmx${java_ram}"
 cmd2=( bin/bbtools/splitnextera.sh threads="${shared_cpus}"
            "-Xmx${java_ram}" 
            "in=stdin.fq"
+           mask
            "out=${output_fq}"
             ziplevel=9 )
 
