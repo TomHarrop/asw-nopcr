@@ -56,7 +56,7 @@ trimmed_fq="${outdir}/mp_trimmed.fastq.gz"
 cmd1=( bin/bbtools/bbduk.sh "threads=${shared_cpus}" "-Xmx${java_ram}"
         "in=${fq_r1}"
         "in2=${fq_r2}"
-        "out=${trimmed_fq}"
+        "out=stdout.fq"
         "ziplevel=9"
         "literal=AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC,AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT"
         "ktrim=r" "k=23" "hdist=2" "mink=10" "hdist2=1"
@@ -73,11 +73,12 @@ cmd1=( bin/bbtools/bbduk.sh "threads=${shared_cpus}" "-Xmx${java_ram}"
 
 cmd2=( bin/bbtools/splitnextera.sh "threads=${shared_cpus}"
            "-Xmx${java_ram}" 
-           "in=${trimmed_fq}"
+           "in=stdin.fq"
            mask
            interleaved
            "out=${output_fq}"
-            "ziplevel=9" )
+           "ziplevel=9"
+           "outf=/dev/null" "outu=/dev/null" "outs=/dev/null" )
 
 shopt -s extglob
 printf "bbduk command line: "
@@ -93,9 +94,9 @@ bbduk_err="${outdir}/bbduk.err"
 splitnextera_err="${outdir}/splitnextera.err"
 
 printf "[ %s: Running bbduk and splitnextera ]\n" "$(date)"
-#"${cmd1[@]}" 2> "${bbduk_err}" | "${cmd2[@]}" 2> "${splitnextera_err}"
-"${cmd1[@]}" 2> "${bbduk_err}"
-"${cmd2[@]}" 2> "${splitnextera_err}"
+"${cmd1[@]}" 2> "${bbduk_err}" | "${cmd2[@]}" 2> "${splitnextera_err}"
+#"${cmd1[@]}" 2> "${bbduk_err}"
+#"${cmd2[@]}" 2> "${splitnextera_err}"
 
 # log metadata
 metadata_file="${outdir}/METADATA.csv"
