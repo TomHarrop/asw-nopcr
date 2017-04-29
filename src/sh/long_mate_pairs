@@ -78,7 +78,9 @@ cmd2=( bin/bbtools/splitnextera.sh "threads=${shared_cpus}"
            interleaved
            "out=${output_fq}"
            "ziplevel=9"
-           "outf=/dev/null" "outu=/dev/null" "outs=/dev/null" )
+           "outf=${tmp_outdir}/f.fq.gz"
+           "outu=${tmp_outdir}/u.fq.gz"
+           "outs=${tmp_outdir}/s.fq.gz" )
 
 shopt -s extglob
 printf "bbduk command line: "
