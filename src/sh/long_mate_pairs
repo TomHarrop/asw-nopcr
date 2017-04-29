@@ -47,18 +47,21 @@ FAIL=0
 fail_wait
 
 # prepare bbduk command
-java_ram=$((ram_limit/2000000000))"g" # half ram
-shared_cpus=$(( max_cpus / 2 ))
+#java_ram=$((ram_limit/2000000000))"g" # half ram
+java_ram=$((ram_limit/1000000000))"g"
+shared_cpus=$(( max_cpus / 1 ))
 ref="bin/bbtools/resources/adapters_no_transposase.fa.gz"
-cmd1=( bin/bbtools/bbduk.sh threads="${shared_cpus}" "-Xmx${java_ram}"
+trimmed_fq="${outdir}/mp_trimmed.fastq.gz"
+
+cmd1=( bin/bbtools/bbduk.sh "threads=${shared_cpus}" "-Xmx${java_ram}"
         "in=${fq_r1}"
         "in2=${fq_r2}"
-        "out=stdout.fq"
-        "ref=${ref}"
-        ktrim=r k=23 hdist=2 mink=10 hdist2=1
-        trimpairsevenly=t
-        trimbyoverlap=t
-        forcetrimmod=5
+        "out=${trimmed_fq}"
+        "ziplevel=9"
+        "literal=AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC,AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT"
+        "ktrim=r" "k=23" "hdist=2" "mink=10" "hdist2=1"
+        trimpairsevenly trimbyoverlap
+        "forcetrimmod=5"
         "stats=${outdir}/stats.txt"
         "bhist=${outdir}/bhist.txt"
         "qhist=${outdir}/qhist.txt"
@@ -68,13 +71,13 @@ cmd1=( bin/bbtools/bbduk.sh threads="${shared_cpus}" "-Xmx${java_ram}"
         "lhist=${outdir}/lhist.txt" 
         "gchist=${outdir}/gchist.txt" )
 
-cmd2=( bin/bbtools/splitnextera.sh threads="${shared_cpus}"
+cmd2=( bin/bbtools/splitnextera.sh "threads=${shared_cpus}"
            "-Xmx${java_ram}" 
-           "in=stdin.fq"
+           "in=${trimmed_fq}"
            mask
-           interleaved=t
+           interleaved
            "out=${output_fq}"
-            ziplevel=9 )
+            "ziplevel=9" )
 
 shopt -s extglob
 printf "bbduk command line: "
@@ -90,7 +93,9 @@ bbduk_err="${outdir}/bbduk.err"
 splitnextera_err="${outdir}/splitnextera.err"
 
 printf "[ %s: Running bbduk and splitnextera ]\n" "$(date)"
-"${cmd1[@]}" 2> "${bbduk_err}" | "${cmd2[@]}" 2> "${splitnextera_err}"
+#"${cmd1[@]}" 2> "${bbduk_err}" | "${cmd2[@]}" 2> "${splitnextera_err}"
+"${cmd1[@]}" 2> "${bbduk_err}"
+"${cmd2[@]}" 2> "${splitnextera_err}"
 
 # log metadata
 metadata_file="${outdir}/METADATA.csv"
