@@ -47,11 +47,11 @@ FAIL=0
 fail_wait
 
 # prepare bbduk command
-#java_ram=$((ram_limit/2000000000))"g" # half ram
-java_ram=$((ram_limit/1000000000))"g"
-shared_cpus=$(( max_cpus / 1 ))
+java_ram=$((ram_limit/2000000000))"g" # half ram
+#java_ram=$((ram_limit/1000000000))"g"
+shared_cpus=$(( max_cpus / 2 ))
 ref="bin/bbtools/resources/adapters_no_transposase.fa.gz"
-trimmed_fq="${outdir}/mp_trimmed.fastq.gz"
+#trimmed_fq="${outdir}/mp_trimmed.fastq.gz"
 
 cmd1=( bin/bbtools/bbduk.sh "threads=${shared_cpus}" "-Xmx${java_ram}"
         "in=${fq_r1}"
