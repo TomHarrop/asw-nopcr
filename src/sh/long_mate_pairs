@@ -72,6 +72,7 @@ cmd2=( bin/bbtools/splitnextera.sh threads="${shared_cpus}"
            "-Xmx${java_ram}" 
            "in=stdin.fq"
            mask
+           interleaved=t
            "out=${output_fq}"
             ziplevel=9 )
 
