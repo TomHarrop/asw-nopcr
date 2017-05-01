@@ -74,7 +74,7 @@ _EOF_
 
 # build SOAP commands
 for soap_kmer_length in 31 41 51; do
-    soap_outdir="${outdir}/run_${meraculous_kmer_length}mer"
+    soap_outdir="${outdir}/run_${soap_kmer_length}mer"
 
     cmd=( "${soapdenovo}" all 
               -s "${sd2_config_file}"
