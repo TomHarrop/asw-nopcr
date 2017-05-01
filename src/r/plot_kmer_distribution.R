@@ -48,6 +48,7 @@ combined_data[, type := factor(type, levels = c("Raw", "Normalised"))]
 mincov <- peaks[1, V1]
 p1 <- peaks[1, V2]
 p2 <- peaks[2, V2]
+maxcov <- peaks[2, V3]
 
 # plot
 Set1 <- RColorBrewer::brewer.pal(9, "Set1")
@@ -55,7 +56,7 @@ kmer_plot <- ggplot(combined_data, aes(x = `#Depth`, y = Unique_Kmers,
                           colour = type)) +
     theme_minimal() +
     theme(legend.position = c(5/6, 2/4)) +
-    geom_vline(xintercept = c(mincov, p1, p2),
+    geom_vline(xintercept = c(mincov, p1, p2, maxcov),
                colour = Set1[9]) +
     geom_path(alpha = 0.75) +
     scale_colour_brewer(palette = "Set1",

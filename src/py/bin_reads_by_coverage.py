@@ -52,16 +52,19 @@ serr = os.path.join(outdir, 'bbnorm.err')
 with tempfile.TemporaryDirectory() as tmpdir:
     outlow = os.path.join(tmpdir, 'low.fq.gz')
     outhigh = os.path.join(tmpdir, 'high.fq.gz')
-    cmd=['bin/bbtools/bbnorm.sh',
-         'threads=' + max_cpus,
-         '-Xmx' + java_ram,
-         'in=' + bbduk_output,
-         'outlow=' + outlow,
-         'outmid=' + parsed_args.output_fq[0],
-         'outhigh=' + outhigh,
-         'passes=1',
-         'lowbindepth=' + min_coverage,
-         'highbindepth=' + max_coverage]
+    cmd = ['bin/bbtools/bbnorm.sh',
+           'threads=' + max_cpus,
+           '-Xmx' + java_ram,
+           'in=' + bbduk_output,
+           'outlow=' + outlow,
+           'outmid=' + parsed_args.output_fq[0],
+           'outhigh=' + outhigh,
+           'hist=' + os.path.join(outdir, 'hist_before.txt'),
+           'histout=' + os.path.join(outdir, 'hist_after.txt'),
+           'passes=1',
+           'lowbindepth=' + min_coverage,
+           'highbindepth=' + max_coverage,
+           'prefilter', 'tossbadreads']
 
     # run bbnorm
     proc = subprocess.Popen(cmd,
