@@ -40,7 +40,7 @@ cmd=( bin/bbtools/bbduk2.sh threads="${max_cpus}" "-Xmx${java_ram}"
         "out=${output_fq}"
         ziplevel=9
         "fref=${fref}"
-        "rliteral=AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC,AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT"
+        "rref=${rref}"
         k=23 hdist=2 mink=10 hdist2=1
         trimpairsevenly
         trimbyoverlap
