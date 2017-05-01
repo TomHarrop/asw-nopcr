@@ -143,6 +143,20 @@ def main():
         filter=ruffus.formatter(),
         output='output/bbnorm/kmer_distribution_plot.pdf')
 
+    # split into coverage bins
+    main_pipeline.transform(
+        name='bin_reads_by_coverage',
+        task_func=tompltools.generate_job_function(
+            job_script='src/py/bin_reads_by_coverage.py',
+            job_name='bin_reads_by_coverage',
+            ntasks=1,
+            cpus_per_task=8,
+            mem_per_cpu=6800),
+        input=trimmed_reads,
+        filter=ruffus.formatter(),
+        add_inputs=ruffus.add_inputs(normalised_reads),
+        output='output/bin_reads_by_coverage/ASW_peak_coverage.fastq.gz')
+
     # meraculous assembly
     
 

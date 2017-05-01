@@ -78,7 +78,7 @@ for soap_kmer_length in 31 41 51; do
 
     cmd=( "${soapdenovo}" all 
               -s "${sd2_config_file}"
-              -o "${soap_outdir}" 
+              -o "${soap_outdir}/assembly" 
               -K "${soap_kmer_length}"
               -m 63 -p 30 ) 
 
