@@ -30,8 +30,7 @@ shopt -u extglob
 
 # run bbnorm
 log_file="${outdir}/khist.log"
-srun --ntasks=1 --cpus-per-task="${max_cpus}" --exclusive \
-    --output="${log_file}" "${cmd[@]}" &
+"${cmd[@]}" 2> "${log_file}" &
 
 printf "[ %s: Waiting for khist to finish ]\n" "$(date)"
 FAIL=0
