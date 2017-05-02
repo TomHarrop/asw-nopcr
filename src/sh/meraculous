@@ -22,7 +22,7 @@ for fq_file in "${input_fq[@]}"; do
     bn="$(basename "${fq_file}" .fastq.gz)"
     if grep -q "lmp" <<< "${bn}"; then
         fq_mp="${fq_file}"
-    elif grep -q "ASW_filtered_trimmed" <<< "${bn}"; then
+    elif grep -q "ASW_peak_coverage" <<< "${bn}"; then
         fq_pe="${fq_file}"
     fi
 done
@@ -35,7 +35,7 @@ for meraculous_kmer_length in 31 41 51; do
     # configure meraculous
     cat <<- _EOF_ > "${meraculous_conf}"
     lib_seq             $(readlink -f "${fq_pe}") PE 470 47 100 0 0 1 1 1 0 0 
-    lib_seq             $(readlink -f "${fq_mp}") MP 5500 500 48 0 1 0 1 0 0 0 
+    lib_seq             $(readlink -f "${fq_mp}") MP 5500 500 96 0 1 0 1 0 0 0 
     genome_size         0.66
     mer_size            ${meraculous_kmer_length}
     diploid_mode        1
