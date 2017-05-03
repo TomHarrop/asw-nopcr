@@ -32,9 +32,7 @@ infiles=$(printf "in=%s " "${input_fa[@]}" )
 cmd=( bin/bbtools/statswrapper.sh threads="${max_cpus}" "-Xmx${java_ram}"
           minscaf=1000
           format=3
-          "${infiles}"
-          "gc=${outdir}/gc.txt"
-          "gchist=${outdir}/gchist.txt" )
+          "${infiles}" )
 
 shopt -s extglob
 printf "Final command line: "
