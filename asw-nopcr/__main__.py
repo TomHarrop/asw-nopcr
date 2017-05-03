@@ -144,7 +144,7 @@ def main():
         output='output/bbnorm/kmer_distribution_plot.pdf')
 
     # split into coverage bins
-    bin_reads_by_coverage = main_pipeline.transform(
+    binned_reads = main_pipeline.transform(
         name='bin_reads_by_coverage = ',
         task_func=tompltools.generate_job_function(
             job_script='src/py/bin_reads_by_coverage.py',
@@ -166,12 +166,33 @@ def main():
             ntasks=1,
             cpus_per_task=8,
             mem_per_cpu=6800),
-        input=bin_reads_by_coverage,
+        input=binned_reads,
         filter=ruffus.formatter(),
         output='output/bin_reads_by_coverage/hist_after.txt')
 
     # meraculous assembly
-    
+    kmer_lengths = ['31', '41', '51']
+    meraculous = main_pipeline.subdivide(
+        name='meraculous',
+        task_func=test_job_function,
+        input=[trimmed_reads, binned_reads],
+        filter=ruffus.formatter(),
+        add_inputs=ruffus.add_inputs(long_mate_pairs),
+        output=[('{subdir[0][1]}/meraculous/{subdir[0][0]}/run_' + x +
+                 'mer/meraculous_final_results/scaffolds.fa')
+                for x in kmer_lengths])
+
+    # soap assembly
+    soap = main_pipeline.subdivide(
+        name='soap',
+        task_func=test_job_function,
+        input=[trimmed_reads, binned_reads],
+        filter=ruffus.formatter(),
+        add_inputs=ruffus.add_inputs(long_mate_pairs),
+        output=[('{subdir[0][1]}/soap_denovo2/{subdir[0][0]}/run_' + x +
+                 'mer/assembly.scafSeq')
+                for x in kmer_lengths])
+
 
     ###################
     # RUFFUS COMMANDS #

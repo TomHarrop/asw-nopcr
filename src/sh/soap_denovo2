@@ -12,7 +12,8 @@ source "src/sh/io_parser"
 soapdenovo=bin/soapdenovo2/SOAPdenovo-63mer
 
 # make outdir
-outdir="$(dirname "${output_fq}")"
+outdir="${output_fa[0]%%/run_*}"
+printf "outdir:\t%s\n" "${outdir}"
 if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
@@ -22,11 +23,16 @@ for fq_file in "${input_fq[@]}"; do
     bn="$(basename "${fq_file}" .fastq.gz)"
     if grep -q "lmp" <<< "${bn}"; then
         fq_mp="${fq_file}"
-    elif grep -q "ASW_filtered_trimmed" <<< "${bn}"; then
+    elif grep -q "ASW" <<< "${bn}"; then
         fq_pe="${fq_file}"
     fi
 done
 printf "fq_pe:\t%s\nfq_mp:\t%s\n" "${fq_pe}" "${fq_mp}"
+
+# parse kmer lengths
+prefs=( ${output_fa[@]%%mer\/*} )
+kmer_lengths=( ${prefs[@]##*\/run_} )
+printf "using kmer:\t%s\n" "${kmer_lengths[@]}"
 
 # deinterleave fq
 script_name="$(basename "$0")"
@@ -73,14 +79,19 @@ q2=${fq_mp_r2}
 _EOF_
 
 # build SOAP commands
-for soap_kmer_length in 31 41 51; do
+for soap_kmer_length in "${kmer_lengths[@]}"; do
+    # set up directories
     soap_outdir="${outdir}/run_${soap_kmer_length}mer"
+    if [[ ! -d "${soap_outdir}" ]]; then
+        mkdir -p "${soap_outdir}"
+    fi
 
+    # build command
     cmd=( "${soapdenovo}" all 
               -s "${sd2_config_file}"
               -o "${soap_outdir}/assembly" 
               -K "${soap_kmer_length}"
-              -m 63 -p 30 ) 
+              -m 63 -p 15 ) 
 
     printf "SOAP command line: "
     printf "%s " "${cmd[@]//+([[:blank:]])/ }"
@@ -89,9 +100,8 @@ for soap_kmer_length in 31 41 51; do
 
     # run SOAP
     log_file="${outdir}/soap_${soap_kmer_length}.log"
-    err_file="${outdir}/soap_${soap_kmer_length}.err"
-
-    "${cmd[@]}" > "${log_file}" 2> "${err_file}" &
+    
+    "${cmd[@]}" 2> "${log_file}" &
 done
 
 printf "[ %s: Waiting for SOAP to finish ]\n" "$(date)"
