@@ -145,7 +145,7 @@ def main():
 
     # split into coverage bins
     binned_reads = main_pipeline.transform(
-        name='bin_reads_by_coverage = ',
+        name='bin_reads_by_coverage',
         task_func=tompltools.generate_job_function(
             job_script='src/py/bin_reads_by_coverage.py',
             job_name='bin_reads_by_coverage',
@@ -179,7 +179,7 @@ def main():
         filter=ruffus.formatter(),
         add_inputs=ruffus.add_inputs(long_mate_pairs),
         output=[('{subdir[0][1]}/meraculous/{subdir[0][0]}/run_' + x +
-                 'mer/meraculous_final_results/scaffolds.fa')
+                 'mer/meraculous_final_results/final.scaffolds.fa')
                 for x in kmer_lengths])
 
     # soap assembly
@@ -192,6 +192,13 @@ def main():
         output=[('{subdir[0][1]}/soap_denovo2/{subdir[0][0]}/run_' + x +
                  'mer/assembly.scafSeq')
                 for x in kmer_lengths])
+
+    # assembly statistics
+    assembly_statistics = main_pipeline.merge(
+        name='assembly_statistics',
+        task_func=test_job_function,
+        input=[meraculous, soap],
+        output='output/assembly_statistics/statistics.txt')
 
 
     ###################
