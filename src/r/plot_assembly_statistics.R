@@ -57,10 +57,13 @@ ggplot(pd, aes(x = algorithm, y = value, group = k, fill = k)) +
                                    hjust = 1,
                                    vjust = 1),
         strip.text = element_text(size = 12),
+        strip.placement = "outside",
+        strip.background = element_blank(),
         panel.spacing = unit(2, "pt")) +
     scale_fill_manual(values = hs[c(2, 4, 6)]) +
     facet_grid(variable_ordered ~ data_type,
-               scales = "free_y",
+               scales = "free_y", 
+               switch = "y",
                labeller = label_parsed) +
     xlab(NULL) + ylab(NULL) +
     geom_col(width = 0.6, position = position_dodge(width = 0.8))

@@ -170,7 +170,7 @@ def main():
         filter=ruffus.formatter(),
         output='output/bin_reads_by_coverage/hist_after.txt')
 
-    # meraculous assembly
+    # meraculous assemblies
     kmer_lengths = ['31', '41', '51']
     meraculous = main_pipeline.subdivide(
         name='meraculous',
@@ -179,6 +179,16 @@ def main():
         filter=ruffus.formatter(),
         add_inputs=ruffus.add_inputs(long_mate_pairs),
         output=[('{subdir[0][1]}/meraculous/{subdir[0][0]}/run_' + x +
+                 'mer/meraculous_final_results/final.scaffolds.fa')
+                for x in kmer_lengths])
+
+    meraculous_diploid2 = main_pipeline.subdivide(
+        name='meraculous_diploid2',
+        task_func=test_job_function,
+        input=[trimmed_reads, binned_reads],
+        filter=ruffus.formatter(),
+        add_inputs=ruffus.add_inputs(long_mate_pairs),
+        output=[('{subdir[0][1]}/meraculous_diploid2/{subdir[0][0]}/run_' + x +
                  'mer/meraculous_final_results/final.scaffolds.fa')
                 for x in kmer_lengths])
 
