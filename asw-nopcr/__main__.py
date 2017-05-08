@@ -14,6 +14,7 @@ import tompltools
 import tompytools
 import ruffus
 import os
+import shutil
 
 
 ############
@@ -215,10 +216,11 @@ def main():
     # RUFFUS COMMANDS #
     ###################
 
-    # print the flowchart
-    ruffus.pipeline_printout_graph(
-        'ruffus/flowchart.pdf', 'pdf',
-        pipeline_name='ASW PCR-free assembly pipeline')
+    # print the flowchart if dot is installed
+    if shutil.which("dot"):
+        ruffus.pipeline_printout_graph(
+            'ruffus/flowchart.pdf', 'pdf',
+            pipeline_name='ASW PCR-free assembly pipeline')
 
     # run the pipeline
     ruffus.cmdline.run(options, multithread=32)
