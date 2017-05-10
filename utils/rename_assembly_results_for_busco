@@ -26,7 +26,7 @@ parse_algorithm () {
     if grep -q "soap" <<< "${1}" ; then
         printf "SOAPdenovo2"
     elif grep -q "meraculous_diploid2" <<< "${1}" ; then
-        printf "meraculous_unphased"
+        printf "meraculous.unphased"
     elif grep -q "meraculous" <<< "${1}" ; then
         printf "meraculous"
     fi
@@ -56,7 +56,7 @@ rename_file () {
     _outfile="${_outdir}/${_datasource}_${_algo}_${_kmer}.fa"
 
     printf "cp %s %s\n" "${_filename}" "${_outfile}"
-    echo cp "${_filename}" "${_outfile}"
+    cp "${_filename}" "${_outfile}"
 }
 
 # make output directory
