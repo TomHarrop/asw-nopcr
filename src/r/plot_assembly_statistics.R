@@ -12,8 +12,10 @@ assembly_data_raw <- rbind(thruplex_assembly_data_raw, nopcr_assembly_data_raw)
 # parse algorithm
 assembly_data_raw[grep("assembly.scafSeq", basename(filename)),
                   algorithm := "SOAPdenovo2"]
-assembly_data_raw[grep("final.scaffolds.fa", basename(filename)),
+assembly_data_raw[grep("/meraculous/", filename),
                   algorithm := "meraculous"]
+assembly_data_raw[grep("/meraculous_diploid2/", filename),
+                  algorithm := "meraculous_unphased"]
 
 # parse data source
 assembly_data_raw[grep("bin_reads_by_coverage", filename),

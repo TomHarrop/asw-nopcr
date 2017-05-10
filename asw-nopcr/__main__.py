@@ -208,7 +208,7 @@ def main():
     assembly_statistics = main_pipeline.merge(
         name='assembly_statistics',
         task_func=test_job_function,
-        input=[meraculous, soap],
+        input=[meraculous, soap, meraculous_diploid2],
         output='output/assembly_statistics/statistics.txt')
 
 
