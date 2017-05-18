@@ -41,8 +41,8 @@ for meraculous_kmer_length in "${kmer_lengths[@]}"; do
 
     # configure meraculous
     cat <<- _EOF_ > "${meraculous_conf}"
-    lib_seq             $(readlink -f "${fq_pe}") PE 470 47 100 0 0 1 1 1 0 0 
-    lib_seq             $(readlink -f "${fq_mp}") MP 5500 500 96 0 1 0 1 0 0 0 
+    lib_seq             $(readlink -f "${fq_pe}") PE 470  47  100 0 0 1 1 1 0 0 
+    lib_seq             $(readlink -f "${fq_mp}") MP 5500 500 96  0 1 0 2 0 0 0 
     genome_size         0.66
     mer_size            ${meraculous_kmer_length}
     diploid_mode        2
