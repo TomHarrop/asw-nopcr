@@ -66,6 +66,7 @@ def main():
         output='output/bbduk/ASW_filtered_trimmed.fastq.gz')
 
     # merge overlapping PE reads
+    # the 100b PE reads don't merge, so exclude them
     # need to modify trimming to take into account 2 PE libs
     main_pipeline.transform(
         name='bbmerge',
