@@ -217,7 +217,7 @@ def main():
     ###################
 
     # print the flowchart if dot is installed
-    if shutil.which("dot"):
+    if shutil.which("dot") and os.path.exists('ruffus'):
         ruffus.pipeline_printout_graph(
             'ruffus/flowchart.pdf', 'pdf',
             pipeline_name='ASW PCR-free assembly pipeline')
