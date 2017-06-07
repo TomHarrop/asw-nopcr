@@ -65,6 +65,16 @@ def main():
         input=raw_fq_files,
         output='output/bbduk/ASW_filtered_trimmed.fastq.gz')
 
+    # merge overlapping PE reads
+    # need to modify trimming to take into account 2 PE libs
+    main_pipeline.transform(
+        name='bbmerge',
+        task_func=test_job_function,
+        input=trimmed_reads,
+        filter=ruffus.formatter(),
+        output=['output/bbmerge/ASW_merged.fastq.gz',
+                'output/bbmerge/ASW_unmerged.fastq.gz'])
+
     # trim and split nextera file
     long_mate_pairs = main_pipeline.merge(
         name='long_mate_pairs',

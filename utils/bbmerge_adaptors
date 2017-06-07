@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+bin/bbtools/bbmerge-auto.sh \
+    usejni \
+    in=output/bbduk/ASW_filtered_trimmed.fastq.gz \
+    outa=test/adapters.fa
+
