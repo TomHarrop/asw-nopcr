@@ -37,33 +37,39 @@ def main():
     main_pipeline = ruffus.Pipeline.pipelines['main']
 
     # find no-pcr reads
-    pcrfree_read_files = tompytools.find_all(['fastq.gz'], 'data/1702KHP-0084')
+    pe100_files = tompytools.find_all(['fastq.gz'], 'data/pe100')
+    pe150_files = tompytools.find_all(['fastq.gz'], 'data/pe150')
 
     # find nextera libs
     nextera_files = tompytools.find_all(['fastq.gz'], 'data/NZGL02125')
 
-    # load files into ruffus 
-    raw_fq_files = main_pipeline.originate(
-        name='raw_fq_files',
+    # load files into ruffus
+    raw_pe100_files = main_pipeline.originate(
+        name='raw_pe100_files',
         task_func=os.path.isfile,
-        output=pcrfree_read_files)
-
+        output=pe100_files)
+    raw_pe150_files = main_pipeline.originate(
+        name='raw_pe150_files',
+        task_func=os.path.isfile,
+        output=pe150_files)
     nextera_libraries = main_pipeline.originate(
         name='nextera_libraries',
         task_func=os.path.isfile,
         output=nextera_files)
 
     # trim and decontaminate PE file
-    trimmed_reads = main_pipeline.merge(
+    trimmed_reads = main_pipeline.subdivide(
         name='bbduk',
-        task_func=tompltools.generate_job_function(
-            job_script='src/sh/bbduk',
-            job_name='bbduk',
-            ntasks=1,
-            cpus_per_task=8,
-            mem_per_cpu=6800),
-        input=raw_fq_files,
-        output='output/bbduk/ASW_filtered_trimmed.fastq.gz')
+        # task_func=tompltools.generate_job_function(
+        #     job_script='src/sh/bbduk',
+        #     job_name='bbduk',
+        #     ntasks=1,
+        #     cpus_per_task=8,
+        #     mem_per_cpu=6800),
+        task_func=test_job_function,
+        input=[[raw_pe100_files], [raw_pe150_files]],
+        filter=ruffus.formatter(r'.+/pe(?P<PE>\d+)/.+.fastq.gz'),
+        output=[r'output/bbduk/pe{PE[0]}_filtered_trimmed.fastq.gz'])
 
     # merge overlapping PE reads
     # the 100b PE reads don't merge, so exclude them
@@ -72,9 +78,9 @@ def main():
         name='bbmerge',
         task_func=test_job_function,
         input=trimmed_reads,
-        filter=ruffus.formatter(),
-        output=['output/bbmerge/ASW_merged.fastq.gz',
-                'output/bbmerge/ASW_unmerged.fastq.gz'])
+        filter=ruffus.regex(r'output/bbduk/pe150_filtered_trimmed.fastq.gz'),
+        output=['output/bbmerge/pe150_merged.fastq.gz',
+                'output/bbmerge/pe150_unmerged.fastq.gz'])
 
     # trim and split nextera file
     long_mate_pairs = main_pipeline.merge(
