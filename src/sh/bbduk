@@ -14,6 +14,9 @@ if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
 
+# get the output prefix
+prefix=$(basename ${output_fq} _filtered_trimmed.fastq.gz)
+
 # pair the files
 for fq_file in "${input_fq[@]}"; do
     bn="$(basename "${fq_file}" .fastq.gz)"
@@ -45,14 +48,14 @@ cmd=( bin/bbtools/bbduk2.sh threads="${max_cpus}" "-Xmx${java_ram}"
         trimpairsevenly
         trimbyoverlap
         forcetrimmod=5
-        "stats=${outdir}/stats.txt"
-        "bhist=${outdir}/bhist.txt"
-        "qhist=${outdir}/qhist.txt"
-        "qchist=${outdir}/qchist.txt"
-        "aqhist=${outdir}/aqhist.txt"
-        "bqhist=${outdir}/bqhist.txt" 
-        "lhist=${outdir}/lhist.txt" 
-        "gchist=${outdir}/gchist.txt" )
+        "stats=${outdir}/${prefix}_stats.txt"
+        "bhist=${outdir}/${prefix}_bhist.txt"
+        "qhist=${outdir}/${prefix}_qhist.txt"
+        "qchist=${outdir}/${prefix}_qchist.txt"
+        "aqhist=${outdir}/${prefix}_aqhist.txt"
+        "bqhist=${outdir}/${prefix}_bqhist.txt" 
+        "lhist=${outdir}/${prefix}_lhist.txt" 
+        "gchist=${outdir}/${prefix}_gchist.txt" )
 
 shopt -s extglob
 printf "Final command line: "
@@ -61,7 +64,7 @@ printf "\n"
 shopt -u extglob
 
 # run bbduk2
-log_file="${outdir}/bbduk.log"
+log_file="${outdir}/${prefix}_bbduk.log"
 "${cmd[@]}" 2> "${log_file}" &
 
 printf "[ %s: Waiting for bbduk2 to finish ]\n" "$(date)"
@@ -69,7 +72,7 @@ FAIL=0
 fail_wait
 
 # log metadata
-metadata_file="${outdir}/METADATA.csv"
+metadata_file="${outdir}/${prefix}_METADATA.csv"
 printf "[ %s: Logging metadata ]\n" "$(date)"
 printf "metadata_file: %s\n" "${metadata_file}"
 cat <<- _EOF_ > "${metadata_file}"
