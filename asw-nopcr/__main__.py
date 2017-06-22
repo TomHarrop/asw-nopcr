@@ -139,7 +139,7 @@ def main():
         output='output/bbduk/quality_histogram_plot.pdf')
 
     # normalise for kmer plots
-    normalised_reads = main_pipeline.transform(
+    normalised_reads = main_pipeline.merge(
         name='bbnorm',
         task_func=tompltools.generate_job_function(
             job_script='src/sh/bbnorm',
@@ -148,8 +148,7 @@ def main():
             cpus_per_task=8,
             mem_per_cpu=6800),
         input=trimmed_reads,
-        filter=ruffus.formatter(),
-        output='output/bbnorm/ASW_normalised.fastq.gz')
+        output='output/bbnorm/pe_merged_normalised.fastq.gz')
 
     # kmer plots
     main_pipeline.transform(
