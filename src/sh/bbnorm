@@ -14,19 +14,11 @@ if [[ ! -d "${outdir}" ]]; then
     mkdir -p "${outdir}"
 fi
 
-# concatenate reads to tempfile
-script_name="$(basename "${0}")"
-tmp_outdir="$(mktemp --tmpdir -d "${script_name}_tmp.XXXXXXXX")"
-tmp_fq="${tmp_outdir}/all_reads.fastq.gz"
-
-printf "[ %s: Copying reads to %s ]\n" "$(date)" "${tmp_fq}"
-cat "${input_fq[@]}" > "${tmp_fq}"
-
 # build command
 java_ram=$((ram_limit/1000000000))"g"
 
 cmd=( bin/bbtools/bbnorm.sh threads="${max_cpus}" "-Xmx${java_ram}"
-        "in=${tmp_fq}"
+        "in=${input_fq}"
         "out=${output_fq}"
         ziplevel=9
         target=60 min=8 prefilter ecc
@@ -60,9 +52,6 @@ cat <<- _EOF_ > "${metadata_file}"
     date,$(date +%F)
     bbnorm revision,$(bin/bbtools/bbnorm.sh 2>&1 | sed '3q;d')
 _EOF_
-
-printf "[ %s: Removing temporary files ]\n" "$(date)"
-rm -r "${tmp_outdir}"
 
 printf "[ %s: Done ]\n" "$(date)"
 exit 0
