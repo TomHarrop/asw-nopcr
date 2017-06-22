@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-bin/bbtools/bbmerge-auto.sh \
-    usejni \
-    in=output/bbduk/pe150_filtered_trimmed.fastq.gz \
-    outa=test/adapters.fa
-

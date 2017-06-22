@@ -87,16 +87,6 @@ def main():
         input=trimmed_reads,
         output='output/bbduk/pe_merged.fastq.gz')
 
-    # merge overlapping PE reads
-    # the 100b PE reads don't merge, so exclude them
-    main_pipeline.transform(
-        name='bbmerge',
-        task_func=test_job_function,
-        input=trimmed_reads,
-        filter=ruffus.regex(r'output/bbduk/pe150_filtered_trimmed.fastq.gz'),
-        output=['output/bbmerge/pe150_merged.fastq.gz',
-                'output/bbmerge/pe150_unmerged.fastq.gz'])
-
     # kmer analysis
     main_pipeline.transform(
         name='kmergenie',
