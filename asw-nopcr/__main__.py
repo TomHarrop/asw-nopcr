@@ -154,7 +154,7 @@ def main():
         output='output/bbnorm/kmer_distribution_plot.pdf')
 
     # meraculous assemblies
-    kmer_lengths = ['31', '41', '51']
+    kmer_lengths = ['41', '51', '61']
     meraculous = main_pipeline.collate(
         name='meraculous',
         task_func=test_job_function,
