@@ -34,8 +34,6 @@ prefs=( ${output_fa[@]%%mer\/*} )
 kmer_lengths=( ${prefs[@]##*\/run_} )
 printf "using kmer:\t%s\n" "${kmer_lengths[@]}"
 
-exit 1
-
 # loop over kmer lengths
 for meraculous_kmer_length in "${kmer_lengths[@]}"; do
     meraculous_outdir="${outdir}/run_${meraculous_kmer_length}mer"
