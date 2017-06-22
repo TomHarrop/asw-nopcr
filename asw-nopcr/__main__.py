@@ -40,9 +40,6 @@ def main():
     pe100_files = tompytools.find_all(['fastq.gz'], 'data/pe100')
     pe150_files = tompytools.find_all(['fastq.gz'], 'data/pe150')
 
-    # find nextera libs
-    nextera_files = tompytools.find_all(['fastq.gz'], 'data/NZGL02125')
-
     # load files into ruffus
     raw_pe100_files = main_pipeline.originate(
         name='raw_pe100_files',
@@ -52,10 +49,6 @@ def main():
         name='raw_pe150_files',
         task_func=os.path.isfile,
         output=pe150_files)
-    nextera_libraries = main_pipeline.originate(
-        name='nextera_libraries',
-        task_func=os.path.isfile,
-        output=nextera_files)
 
     # trim and decontaminate PE file
     trimmed_reads = main_pipeline.subdivide(
@@ -81,18 +74,6 @@ def main():
         filter=ruffus.regex(r'output/bbduk/pe150_filtered_trimmed.fastq.gz'),
         output=['output/bbmerge/pe150_merged.fastq.gz',
                 'output/bbmerge/pe150_unmerged.fastq.gz'])
-
-    # trim and split nextera file
-    long_mate_pairs = main_pipeline.merge(
-        name='long_mate_pairs',
-        task_func=tompltools.generate_job_function(
-            job_script='src/sh/long_mate_pairs',
-            job_name='long_mate_pairs',
-            ntasks=1,
-            cpus_per_task=8,
-            mem_per_cpu=6800),
-        input=nextera_libraries,
-        output='output/long_mate_pairs/lmp.fastq.gz')
 
     # kmer analysis
     main_pipeline.transform(
@@ -194,7 +175,6 @@ def main():
         task_func=test_job_function,
         input=[trimmed_reads, binned_reads],
         filter=ruffus.formatter(),
-        add_inputs=ruffus.add_inputs(long_mate_pairs),
         output=[('{subdir[0][1]}/meraculous/{subdir[0][0]}/run_' + x +
                  'mer/meraculous_final_results/final.scaffolds.fa')
                 for x in kmer_lengths])
@@ -204,7 +184,6 @@ def main():
         task_func=test_job_function,
         input=[trimmed_reads, binned_reads],
         filter=ruffus.formatter(),
-        add_inputs=ruffus.add_inputs(long_mate_pairs),
         output=[('{subdir[0][1]}/meraculous_diploid2/{subdir[0][0]}/run_' + x +
                  'mer/meraculous_final_results/final.scaffolds.fa')
                 for x in kmer_lengths])
@@ -215,7 +194,6 @@ def main():
         task_func=test_job_function,
         input=[trimmed_reads, binned_reads],
         filter=ruffus.formatter(),
-        add_inputs=ruffus.add_inputs(long_mate_pairs),
         output=[('{subdir[0][1]}/soap_denovo2/{subdir[0][0]}/run_' + x +
                  'mer/assembly.scafSeq')
                 for x in kmer_lengths])
