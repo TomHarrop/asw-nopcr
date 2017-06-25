@@ -51,7 +51,7 @@ for meraculous_kmer_length in "${kmer_lengths[@]}"; do
     local_num_procs     50
     local_max_memory    10
     use_cluster         0
-    no_read_validation  0
+    no_read_validation  1
 _EOF_
 
     # build command
