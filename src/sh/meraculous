@@ -46,9 +46,9 @@ for meraculous_kmer_length in "${kmer_lengths[@]}"; do
     genome_size         0.66
     mer_size            ${meraculous_kmer_length}
     diploid_mode        1
-    num_prefix_blocks   1
+    num_prefix_blocks   2
     min_depth_cutoff    0
-    local_num_procs     30
+    local_num_procs     50
     local_max_memory    10
     use_cluster         0
     no_read_validation  0
