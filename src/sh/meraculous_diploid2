@@ -21,13 +21,13 @@ fi
 # separate PE and MP files
 for fq_file in "${input_fq[@]}"; do
     bn="$(basename "${fq_file}" .fastq.gz)"
-    if grep -q "lmp" <<< "${bn}"; then
-        fq_mp="${fq_file}"
-    elif grep -q "ASW" <<< "${bn}"; then
-        fq_pe="${fq_file}"
+    if grep -q "pe100" <<< "${bn}"; then
+        fq_pe100="${fq_file}"
+    elif grep -q "pe150" <<< "${bn}"; then
+        fq_pe150="${fq_file}"
     fi
 done
-printf "fq_pe:\t%s\nfq_mp:\t%s\n" "${fq_pe}" "${fq_mp}"
+printf "fq_pe100:\t%s\nfq_pe150:\t%s\n" "${fq_pe100}" "${fq_pe150}"
 
 # parse kmer lengths
 prefs=( ${output_fa[@]%%mer\/*} )
@@ -41,15 +41,15 @@ for meraculous_kmer_length in "${kmer_lengths[@]}"; do
 
     # configure meraculous
     cat <<- _EOF_ > "${meraculous_conf}"
-    lib_seq             $(readlink -f "${fq_pe}") PE 470  47  100 0 0 1 1 1 0 0 
-    lib_seq             $(readlink -f "${fq_mp}") MP 5500 500 96  0 1 0 2 0 0 0 
+    lib_seq             $(readlink -f "${fq_pe150}") PE150 400  50  150 0 0 1 1 1 0 0 
+    lib_seq             $(readlink -f "${fq_pe100}") PE100 400  50  100 0 0 1 1 1 0 0 
     genome_size         0.66
     mer_size            ${meraculous_kmer_length}
     diploid_mode        2
-    num_prefix_blocks   1
+    num_prefix_blocks   2
     min_depth_cutoff    0
-    local_num_procs     40
-    local_max_memory    7
+    local_num_procs     25
+    local_max_memory    15
     use_cluster         0
     no_read_validation  1
 _EOF_
