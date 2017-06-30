@@ -20,7 +20,7 @@ else:
 # make a sorted list of tuples of scaffold name and sequence length
 print("Parsing read lengths")
 length_id_unsorted = ((len(rec), rec.id) for
-                      rec in SeqIO.parse(unsorted_fa, 'fastq'))
+                      rec in SeqIO.parse(unsorted_fa, 'fasta'))
 length_and_id = sorted(length_id_unsorted)
 
 # get an iterator sorted by read length
@@ -32,12 +32,12 @@ del(length_and_id)
 
 # build an index of the fasta file
 print("Indexing %s by read name" % unsorted_fa)
-record_index = SeqIO.index(unsorted_fa, 'fastq')
+record_index = SeqIO.index(unsorted_fa, 'fasta')
 
 # write selected records in correct order to disk
 print("Ordering records")
 ordered_records = (record_index[id] for id in longest_to_shortest)
-print("Writing sorted fastq to %s" % sorted_fasta)
+print("Writing sorted fasta to %s" % sorted_fasta)
 SeqIO.write(sequences=ordered_records,
             handle=sorted_fasta,
-            format='fastq')
+            format='fasta')
