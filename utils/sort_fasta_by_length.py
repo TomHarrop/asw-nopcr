@@ -6,7 +6,7 @@ import tompltools
 # expect input fq and output fq
 parsed_args = tompltools.parse_cli_arguments()
 
-if parsed_args.input_fq:
+if parsed_args.input_fa:
     print('input_fa:\t%s' % parsed_args.input_fa)
     unsorted_fa = parsed_args.input_fa[0]
 else:
