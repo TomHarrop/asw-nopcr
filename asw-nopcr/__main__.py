@@ -57,6 +57,9 @@ def main():
     pe100_files = tompytools.find_all(['fastq.gz'], 'data/pe100')
     pe150_files = tompytools.find_all(['fastq.gz'], 'data/pe150')
 
+    # find nextera reads
+    mp_files = tompytools.find_all(['fastq.gz'], 'data/NZGL02125')
+
     # load files into ruffus
     raw_pe100_files = main_pipeline.originate(
         name='raw_pe100_files',
@@ -66,6 +69,22 @@ def main():
         name='raw_pe150_files',
         task_func=os.path.isfile,
         output=pe150_files)
+    raw_mp_files = main_pipeline.originate(
+        name='raw_mp_files',
+        task_func=os.path.isfile,
+        output=mp_files)
+
+    # trim and split nextera file
+    long_mate_pairs = main_pipeline.merge(
+        name='long_mate_pairs',
+        task_func=tompltools.generate_job_function(
+            job_script='src/sh/long_mate_pairs',
+            job_name='long_mate_pairs',
+            ntasks=1,
+            cpus_per_task=8,
+            mem_per_cpu=6800),
+        input=raw_mp_files,
+        output='output/long_mate_pairs/lmp.fastq.gz') 
 
     # trim and decontaminate PE file
     trimmed_reads = main_pipeline.subdivide(

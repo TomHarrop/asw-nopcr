@@ -32,12 +32,9 @@ printf "\tfq_l2r1: %s\n\tfq_l3r1: %s\n\tfq_l2r2: %s\n\tfq_l3r2: %s\n" \
 
 # concatenate the pairs to temporary files
 script_name="$(basename "${0}")"
-tmp_outdir="$(mktemp --tmpdir -d "${script_name}_tmp.XXXXXXXX")"
+tmp_outdir="$(mktemp -d -p "${outdir}" "${script_name}_tmp.XXXXXXXX")"
 fq_r1="${tmp_outdir}/r1.fastq.gz"
 fq_r2="${tmp_outdir}/r2.fastq.gz"
-
-# zcat "${fq_l2r1}" | head -n 10000 | gzip > "${fq_r1}" &
-# zcat "${fq_l2r2}" | head -n 10000 | gzip > "${fq_r2}" &
 
 cat "${fq_l2r1}" "${fq_l3r1}" > "${fq_r1}" &
 cat "${fq_l2r2}" "${fq_l3r2}" > "${fq_r2}" &
@@ -47,18 +44,14 @@ FAIL=0
 fail_wait
 
 # prepare bbduk command
-java_ram=$((ram_limit/2000000000))"g" # half ram
-#java_ram=$((ram_limit/1000000000))"g"
-shared_cpus=$(( max_cpus / 2 ))
 ref="bin/bbtools/resources/adapters_no_transposase.fa.gz"
-#trimmed_fq="${outdir}/mp_trimmed.fastq.gz"
 
-cmd1=( bin/bbtools/bbduk.sh "threads=${shared_cpus}" "-Xmx${java_ram}"
+cmd1=( bin/bbtools/bbduk.sh
         "in=${fq_r1}"
         "in2=${fq_r2}"
         "out=stdout.fq"
         "ziplevel=9"
-        "literal=AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC,AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT"
+        "ref=${ref}"
         "ktrim=r" "k=23" "hdist=2" "mink=10" "hdist2=1"
         trimpairsevenly trimbyoverlap
         "forcetrimmod=5"
@@ -92,13 +85,11 @@ printf "\n"
 shopt -u extglob
 
 # run command
-bbduk_err="${outdir}/bbduk.err"
-splitnextera_err="${outdir}/splitnextera.err"
+bbduk_err="${outdir}/bbduk.log"
+splitnextera_err="${outdir}/splitnextera.log"
 
 printf "[ %s: Running bbduk and splitnextera ]\n" "$(date)"
 "${cmd1[@]}" 2> "${bbduk_err}" | "${cmd2[@]}" 2> "${splitnextera_err}"
-#"${cmd1[@]}" 2> "${bbduk_err}"
-#"${cmd2[@]}" 2> "${splitnextera_err}"
 
 # log metadata
 metadata_file="${outdir}/METADATA.csv"
