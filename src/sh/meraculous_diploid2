@@ -53,7 +53,7 @@ for meraculous_kmer_length in "${kmer_lengths[@]}"; do
     num_prefix_blocks   2
     min_depth_cutoff    0
     local_num_procs     50
-    local_max_memory    10
+    local_max_memory    17
     use_cluster         0
     no_read_validation  1
 _EOF_
@@ -61,7 +61,6 @@ _EOF_
     # build command
     cmd=( "${meraculous}" -c "${meraculous_conf}"
               -dir "${meraculous_outdir}"
-              -restart
               -cleanup_level 2 )
     shopt -s extglob
     printf "Final command line: "
