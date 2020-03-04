@@ -10,9 +10,9 @@ import multiprocessing
 
 def resolve_meraculous_input(wildcards):
     if wildcards.read_set == 'raw':
-        my_fastq = f'output/010_reads/asw.fastq.gz'
+        my_fastq = f'output/010_reads/asw.fastq'
     elif wildcards.read_set == 'norm':
-        my_fastq = f'output/020_norm/asw.fq.gz'
+        my_fastq = f'output/020_norm/asw.fq'
     else:
         raise ValueError(f'wtf read_set {wildcards.read_set}')
     return my_fastq
@@ -219,3 +219,13 @@ rule combine_reads:
         bbduk
     shell:
         'zcat {input.pe100} {input.pe150} > {output}'
+
+rule tmp_gunzip:
+    input:
+        'output/{path}/{file}.gz'
+    output:
+        temp('output/{path}/{file}')
+    singularity:
+        bbduk
+    shell:
+        'gunzip -c {input} > {output}'
