@@ -43,7 +43,8 @@ rule target:
                read_set=['raw', 'norm'],
                diplo=[1, 2],
                k=[61, 71, 81]),
-
+        expand('output/020_norm/asw_{plot}.pdf',
+               plot=['coverage', 'kha'])
 
 rule meraculous:
     input:
