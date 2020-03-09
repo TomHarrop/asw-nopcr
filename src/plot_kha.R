@@ -27,10 +27,9 @@ plot_file <- snakemake@output[["plot"]]
 # names(hist_files) <- ifelse(grepl("-out", hist_files), "Normalised", "Raw")
 
 # dev
-# hist_before_file <- "test/Male_Bee_2_hist.txt"
-# hist_after_file <- "test/Male_Bee_2_hist-out.txt"
-# peak_file <- "test/Male_Bee_2_peaks.txt"
-# plot_file <- "test/male-bee-1_kha.pdf"
+# hist_before_file <- "output/020_norm/asw_hist.txt"
+# hist_after_file <- "output/020_norm/asw_hist-out.txt"
+# plot_file <- "test/asw_kha.pdf"
 
 ########
 # MAIN #
@@ -65,10 +64,34 @@ gp <- ggplot(kha, aes(x = `#Depth`, y = percent_kmers, colour = type)) +
     geom_path(alpha = 0.75)
 
 
+# find the elbows
+kha_diff <- kha[`#Depth` <= 256,
+                .(diff_pct = diff(diff(Raw_Count) > 0) != 0,
+                  `#Depth` = `#Depth`[c(-1, -2)],
+                  percent_kmers = percent_kmers[c(-1, -2)]),
+                by = type]
+
+kha_diff[, percent_repeat :=
+             paste0("~", round(100 - percent_kmers, 0), "% repeats")]
+
+gp_with_elbows <- gp +
+    geom_hline(data = kha_diff[diff_pct == TRUE][c(5, 21)],
+               mapping = aes(yintercept = percent_kmers,
+                             colour = type),
+               linetype = 2,
+               show.legend = FALSE) +
+    geom_text(data = kha_diff[diff_pct == TRUE][c(5, 21)],
+               mapping = aes(label = percent_repeat,
+                             x = 0),
+              hjust = "left",
+              vjust = -0.1,
+              size = 2,
+              show.legend = FALSE)
+
 wo <- grid::convertUnit(grid::unit(483/3, "pt"), "mm", valueOnly = TRUE)
 ho <- grid::convertUnit(grid::unit(664/3, "pt"), "mm", valueOnly = TRUE)
 ggsave(filename = plot_file,
-       plot = gp,
+       plot = gp_with_elbows,
        device = cairo_pdf,
        width = wo,
        height = ho,

@@ -20,19 +20,11 @@ hist_after_file <- snakemake@input[["hist_out"]]
 peak_file <- snakemake@input[["peaks"]]
 plot_file <- snakemake@output[["plot"]]
 
-# find files
-# hist_files <- list.files("test",
-#                          pattern = "hist.*txt",
-#                          full.names = TRUE)
-# GenerateHistfileName(hist_files)
-# names(hist_files) <- GenerateHistfileName(hist_files)
-# peak_file <- "output/020_norm/500_bp_insert_standard-peaks.txt"
-
 # dev
-# hist_before_file <- "test/Male_Bee_2_hist.txt"
-# hist_after_file <- "test/Male_Bee_2_hist-out.txt"
-# peak_file <- "test/Male_Bee_2_peaks.txt"
-# plot_file <- "test/Male_Bee_2.pdf"
+# hist_before_file <- "output/020_norm/asw_hist.txt"
+# hist_after_file <- "output/020_norm/asw_hist-out.txt"
+# peak_file <- "output/020_norm/asw_peaks.txt"
+# plot_file <- "test/asw_kha.pdf"
 
 ########
 # MAIN #
@@ -49,16 +41,16 @@ combined_data <- rbindlist(hist_data_list, idcol = "type")
 combined_data[, type := factor(type, levels = c("Raw", "Normalised"))]
 
 # hlines
-mincov <- peaks[1, V1]
-p1 <- peaks[1, V2]
-maxcov <- peaks[1, V3]
+mincov <- peaks[2, V1]
+p1 <- peaks[2, V2]
+maxcov <- peaks[2, V3]
 peak_pd <- combined_data[type == "Raw" & between(`#Depth`, mincov, maxcov)]
 
 # plot title
-gt <- paste0(
-    p1, "× 31-mer coverage. ",
-    "Main peak: ", mincov, "×–", maxcov, "×"
-)
+# gt <- paste0(
+#     p1, "× 31-mer coverage. ",
+#     "Main peak: ", mincov, "×–", maxcov, "×"
+# )
 
 # plot
 vd <- viridisLite::viridis(3)
@@ -84,8 +76,7 @@ kmer_plot <- ggplot(combined_data,
     scale_x_continuous(trans = log_trans(base = 4),
                        breaks = trans_breaks(function(x) log(x, 4),
                                              function(x) 4^x)) +
-    xlab("31-mer depth") + ylab("Number of unique 31-mers") +
-    ggtitle(gt)
+    xlab("31-mer depth") + ylab("Number of unique 31-mers")
 
 # write output
 wo <- grid::convertUnit(grid::unit(483, "pt"), "mm", valueOnly = TRUE)
